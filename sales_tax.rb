@@ -1,14 +1,24 @@
 class Product
-  attr_accessor :name, :quantity, :type, :price, :imported
+  attr_accessor :name, :price, :imported, :quantity
 
-  def initialize(name, quantity, type, price, imported=false)
+  def initialize(name, price, imported=false, quantity=1)
     @name = name
-    @quantity = quantity
-    @type = type
     @price = price
+    @quantity = quantity
     @imported = imported
   end
+
 end
+
+class Book < Product
+end
+
+class Medicine < Product
+end
+
+class Food < Product
+end
+
 
 class CashRegister
   attr_reader :item_list, :tax_list
@@ -18,8 +28,8 @@ class CashRegister
 
   def initialize
     @item_list = []
-    @tax_total = 0
-    @total = 0
+    @tax_total = 0.0
+    @total = 0.0
   end
 
   def scan(*items)
@@ -33,40 +43,56 @@ class CashRegister
   def tax_rate(item)
     @tax_rate = 0.0
     @tax_rate += @@import if item.imported == true
-    @tax_rate += @@sales_tax unless item.type == "book" || item.type == "food" || item.type == "medicine"
+    @tax_rate += @@sales_tax unless (item.is_a? Book) || (item.is_a? Food) || (item.is_a? Medicine)
     @tax_rate
   end
 
   def calc_tax(item)
-    tax_total = item.price * tax_rate(item)
-    tax_total +=  0.05 - (tax_total % 0.05) if  tax_total % 0.05 != 0
-    tax_total.round(2)
+    total = item.price * tax_rate(item)
+    total +=  0.05 - (total % 0.05) if  total % 0.05 != 0.0
+    return total
   end
 
   def calc_total(item)
-    item.price + calc_tax(item)
+    total = item.price + calc_tax(item)
+  end
+
+  def print(price)
+    sprintf("%.2f", price)
   end
 
   def receipt
     printout = String.new
     @item_list.each do |item|
-      printout << "#{item.quantity} #{item.name}: #{calc_total(item)} \n"
+      printout << "#{item.quantity} #{item.name}: #{print(calc_total(item))} "
     end
-    printout << "Sales Taxes: #{@tax_total} Total: #{@total}"
+    printout << "Sales Taxes: #{print(@tax_total)} Total: #{print(@total)}"
     #reset instance variables for next scan
     @item_list = []
-    @tax_total = 0
-    @total = 0
+    @tax_total = 0.0
+    @total = 0.0
 
     p printout
   end
 
 end
 
-book = Product.new("book", 1, "book", 12.49)
-cd = Product.new("music CD", 1, "cd", 14.99)
-bar = Product.new("chocolate bar", 1, "food", 0.85)
-
-
+book = Book.new("book", 12.49)
+cd = Product.new("music CD", 14.99)
+bar = Food.new("chocolate bar", 0.85)
+chocolates = Food.new("imported box of chocolates", 10.00, true)
+perfume = Product.new("imported bottle of perfume", 47.50, true)
+perfume2 = Product.new("imported bottle of perfume", 27.99, true)
+perfume3 = Product.new("bottle of perfume", 18.99, true)
+pills = Medicine.new("packet of headache pills", 9.75, true)
+chocolates2 = Food.new("imported box of chocolates", 11.85, true)
 
 register= CashRegister.new
+
+register.scan(book, cd, bar)
+register.receipt
+register.scan(chocolates, perfume)
+register.receipt
+register.scan(perfume2, perfume3, pills, chocolates2)
+register.receipt
+
