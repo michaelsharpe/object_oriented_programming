@@ -62,17 +62,18 @@ class CashRegister
   end
 
   def receipt
-    printout = String.new
+    printout = "\n"
+
     @item_list.each do |item|
-      printout << "#{item.quantity} #{item.name}: #{print(calc_total(item))} "
+      printout << "#{item.quantity} #{item.name}: #{print(calc_total(item))}" + "\n"
     end
-    printout << "Sales Taxes: #{print(@tax_total)} Total: #{print(@total)}"
+    printout << "Sales Taxes: #{print(@tax_total)} \nTotal: #{print(@total)}"
     #reset instance variables for next scan
     @item_list = []
     @tax_total = 0.0
     @total = 0.0
 
-    p printout
+    puts printout
   end
 
 end
@@ -80,12 +81,14 @@ end
 book = Book.new("book", 12.49)
 cd = Product.new("music CD", 14.99)
 bar = Food.new("chocolate bar", 0.85)
+
 chocolates = Food.new("imported box of chocolates", 10.00, true)
 perfume = Product.new("imported bottle of perfume", 47.50, true)
+
 perfume2 = Product.new("imported bottle of perfume", 27.99, true)
-perfume3 = Product.new("bottle of perfume", 18.99, true)
-pills = Medicine.new("packet of headache pills", 9.75, true)
-chocolates2 = Food.new("imported box of chocolates", 11.85, true)
+perfume3 = Product.new("bottle of perfume", 18.99)
+pills = Medicine.new("packet of headache pills", 9.75)
+chocolates2 = Food.new("imported box of chocolates", 11.25, true)
 
 register= CashRegister.new
 
