@@ -1,55 +1,63 @@
-class Item
-  attr_accessor :type, :price, :imported
+class Product
+  attr_accessor :name, :type, :price, :imported
 
-  def initialize(type, price, imported)
+  def initialize(name, type, price, imported)
+    @name = name
     @type = type
     @price = price
     @imported = imported
-    @tax = 0.1 
+  end
+end
+
+class CashRegister
+  attr_reader :item_list, :tax_list
+
+  @@sales_tax = 0.1
+  @@import = 0.05
+
+  def initialize
+    @item_list=[]
+    @tax_list = []
   end
 
-  def tax_percent
-    case @type
-    when :book, :food, :medical 
-      if @imported == true 
-        @tax = 0.5
-      else
-        @tax = 0
-      end
-    else
-      if @imported == true
-        @tax = 0.15
-      end
+  def scan(*items)
+    items.each do |x| 
+      @item_list << x
+      @tax_list << calc_tax(x)
     end
-    @tax
   end
 
-  def tax_total
-    self.tax_percent
-    tax = @tax * @price / 100
-
-    #round tax to nearest 0.05
-    if tax % 0.05 != 0
-      tax +=  0.05 - (tax % 0.05)
-    end
-
-    return tax
+  def tax_rate(item)
+    @tax_rate = 0.0
+    @tax_rate += @@import if item.imported == true
+    @tax_rate += @@sales_tax unless item.type == "book" || item.type == "food" || item.type == "medicine"
+    @tax_rate
   end
 
-  def total_price
-    self.tax_total + @price
+
+  def calc_tax(item)
+    tax_total = item.price * tax_rate(item)
+    tax_total +=  0.05 - (tax_total % 0.05) if  tax_total % 0.05 != 0
+    tax_total
+  end
+
+  def receipt
+
+
   end
 
 end
 
-book = Item.new(:book, 12.49, false)
-puts book.total_price
-puts book.tax_percent
-puts book.tax_total
-chocolates = Item.new(:food, 10.00, true)
-puts chocolates.price
-puts chocolates.type
-puts chocolates.imported
-puts chocolates.total_price
-puts chocolates.tax_percent
-puts chocolates.tax_total
+book=Product.new("book", "book", 12.49, false)
+wine=Product.new("wine", "alchohol", 15.00, true)
+
+register= CashRegister.new
+
+puts book.type
+puts book.price
+puts register.tax_rate(book)
+puts register.tax_rate(wine)
+
+register.scan(book, wine)
+puts register.item_list
+puts register.tax_list
