@@ -10,26 +10,22 @@ class Product
 
 end
 
-class Book < Product
+class Exempt < Product
+  def tax_rate
+    @tax_rate = 0
+    @tax_rate += 0.05 if item.imported == true
+  end
 end
-
-class Medicine < Product
-end
-
-class Food < Product
-end
-
 
 class CashRegister
   attr_reader :item_list, :tax_list
 
-  @@sales_tax = 0.1
-  @@import = 0.05
 
   def initialize
-    @item_list = []
-    @tax_total = 0.0
-    @total = 0.0
+    item_list= []
+    tax_total= 0.0
+    @total= 0.0
+    @tax_rate
   end
 
   def scan(*items)
@@ -40,15 +36,13 @@ class CashRegister
     end
   end
 
-  def tax_rate(item)
-    @tax_rate = 0.0
-    @tax_rate += @@import if item.imported == true
-    @tax_rate += @@sales_tax unless (item.is_a? Book) || (item.is_a? Food) || (item.is_a? Medicine)
+  def tax_rate
+    @tax_rate = 0.1
     @tax_rate
   end
 
   def calc_tax(item)
-    total = item.price * tax_rate(item)
+    total = item.price * tax_rate
     total +=  0.05 - (total % 0.05) if  total % 0.05 != 0.0
     return total
   end
